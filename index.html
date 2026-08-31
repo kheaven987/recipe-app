@@ -142,8 +142,8 @@ async function ghCreateGist() {
 
 async function ghLoadRecipes() {
   const resp = await fetch('https://api.github.com/gists/' + ghGistId(), { headers: ghHeaders() });
-  if (resp.status === 404) throw new Error("Couldn't find that shared file — check the Gist ID.");
-  if (resp.status === 401 || resp.status === 403) throw new Error('That token was refused — check it still has the "gist" scope and hasn\'t expired.');
+  if (resp.status === 404) throw new Error("Couldn't find that shared file \u2014 check the Gist ID.");
+  if (resp.status === 401 || resp.status === 403) throw new Error('That token was refused \u2014 check it still has the "gist" scope and hasn\'t expired.');
   if (!resp.ok) throw new Error('GitHub returned an error (' + resp.status + ').');
   const data = await resp.json();
   const file = data.files && data.files[GIST_FILENAME];
@@ -153,7 +153,7 @@ async function ghLoadRecipes() {
 }
 
 async function ghSaveRecipes() {
-  state.syncStatus = 'Saving…'; state.syncErr = false; paintSyncBadge();
+  state.syncStatus = 'Saving\u2026'; state.syncErr = false; paintSyncBadge();
   try {
     const resp = await fetch('https://api.github.com/gists/' + ghGistId(), {
       method: 'PATCH', headers: ghHeaders(),
@@ -188,7 +188,7 @@ function render() {
 }
 
 function renderLoading() {
-  app.innerHTML = `<div class="empty"><h2>Opening the box…</h2></div>`;
+  app.innerHTML = `<div class="empty"><h2>Opening the box\u2026</h2></div>`;
 }
 
 function renderConnect() {
@@ -198,7 +198,7 @@ function renderConnect() {
       <p class="sub">Recipes are stored in a private GitHub Gist so you and your partner both see the same box.</p>
       <div class="callout">
         1. <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kieran%20and%20Liv%20Recipes" target="_blank" rel="noopener">Create a token</a> scoped only to <code>gist</code> (no other access needed), and copy it.<br>
-        2. Paste it below. Leave Gist ID blank the very first time — the app will create the shared file and show you the ID to give your partner.
+        2. Paste it below. Leave Gist ID blank the very first time \u2014 the app will create the shared file and show you the ID to give your partner.
       </div>
       <div class="field">
         <label for="gh-token-input">GitHub token</label>
@@ -220,7 +220,7 @@ async function handleConnect() {
   if (!token) { state.connectStatus = 'Paste your token first.'; state.connectErr = true; render(); return; }
   const btn = document.getElementById('connect-btn'); if (btn) btn.disabled = true;
   localStorage.setItem('gh_token', token);
-  state.connectStatus = gistIdInput ? 'Connecting…' : 'Creating your shared box…';
+  state.connectStatus = gistIdInput ? 'Connecting\u2026' : 'Creating your shared box\u2026';
   state.connectErr = false; render();
   try {
     let gistId = gistIdInput;
@@ -230,7 +230,7 @@ async function handleConnect() {
     state.view = 'list';
     render();
     if (!gistIdInput) {
-      alert('Shared box created. Give your partner this Gist ID so they can connect too:\n\n' + gistId + '\n\n(They\'ll also need a token of their own, or this same one — either works, since it\'s the token that grants write access.)');
+      alert('Shared box created. Give your partner this Gist ID so they can connect too:\n\n' + gistId + '\n\n(They\'ll also need a token of their own, or this same one \u2014 either works, since it\'s the token that grants write access.)');
     }
   } catch (e) {
     state.connectStatus = e.message; state.connectErr = true;
@@ -253,7 +253,7 @@ function header() {
 }
 
 async function manualRefresh() {
-  state.syncStatus = 'Checking for updates…'; state.syncErr = false; render();
+  state.syncStatus = 'Checking for updates\u2026'; state.syncErr = false; render();
   try { state.recipes = await ghLoadRecipes(); state.syncStatus = 'Up to date'; state.syncErr = false; }
   catch (e) { state.syncStatus = "Couldn't refresh: " + e.message; state.syncErr = true; }
   render();
@@ -270,7 +270,7 @@ function renderList() {
   let cards = entries.map(([key, r]) => `
     <div class="card" onclick="openRecipe('${key}')">
       <h3>${escapeHtml(r.title || 'Untitled recipe')}</h3>
-      <div class="meta">${[r.prep_time, r.cook_time, r.servings ? r.servings + ' servings' : ''].filter(Boolean).join(' · ')}</div>
+      <div class="meta">${[r.prep_time, r.cook_time, r.servings ? r.servings + ' servings' : ''].filter(Boolean).join(' &middot; ')}</div>
       <div class="tags">${(r.tags || []).slice(0, 3).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
       ${r.added_by ? `<div class="by">added by ${escapeHtml(r.added_by)}</div>` : ''}
     </div>`).join('');
@@ -278,7 +278,7 @@ function renderList() {
   if (entries.length === 0) {
     cards = `<div class="empty" style="grid-column:1/-1">
       <h2>${q ? 'Nothing matches that search' : 'The box is empty'}</h2>
-      <p>${q ? 'Try a different word, or clear the search.' : 'Paste in a recipe to get started — it\'ll show up for both of you.'}</p>
+      <p>${q ? 'Try a different word, or clear the search.' : 'Paste in a recipe to get started \u2014 it\'ll show up for both of you.'}</p>
     </div>`;
   }
 
@@ -297,10 +297,10 @@ function blankRecipe() { return { title: '', servings: '', prep_time: '', cook_t
 function renderAdd() {
   const tab = state.addTab || 'paste';
   app.innerHTML = `
-    <span class="back-link" onclick="goList()">← Back to the box</span>
+    <span class="back-link" onclick="goList()">&larr; Back to the box</span>
     <div class="panel">
       <h2>Add a recipe</h2>
-      <p class="sub">Send a recipe link to Claude in chat and it'll hand you back clean JSON — paste that here. Or fill one in yourself.</p>
+      <p class="sub">Send a recipe link to Claude in chat and it'll hand you back clean JSON &mdash; paste that here. Or fill one in yourself.</p>
       <div class="tabs">
         <button class="tab-btn ${tab === 'paste' ? 'active' : ''}" onclick="setAddTab('paste')">Paste from Claude</button>
         <button class="tab-btn ${tab === 'manual' ? 'active' : ''}" onclick="setAddTab('manual')">Enter manually</button>
@@ -326,11 +326,144 @@ function ingredientRowHtml(ing, i) {
       <input class="amt" type="text" placeholder="amt" value="${escapeHtml(ing.amount || '')}" onchange="updateIngredient(${i},'amount',this.value)">
       <input class="unit" type="text" placeholder="unit" value="${escapeHtml(ing.unit || '')}" onchange="updateIngredient(${i},'unit',this.value)">
       <input type="text" placeholder="ingredient" value="${escapeHtml(ing.name || '')}" onchange="updateIngredient(${i},'name',this.value)">
-      <button class="remove-x" onclick="removeIngredient(${i})">×</button>
+      <button class="remove-x" onclick="removeIngredient(${i})">&times;</button>
     </div>`;
 }
 function stepRowHtml(step, i) {
   return `
     <div class="step-row">
       <div class="step-num">${i + 1}.</div>
-      <textarea o
+      <textarea onchange="updateStep(${i},this.value)">${escapeHtml(step)}</textarea>
+      <button class="remove-x" onclick="removeStep(${i})">&times;</button>
+    </div>`;
+}
+
+function renderPreview() {
+  const r = state.extraction;
+  app.innerHTML = `
+    <span class="back-link" onclick="goAdd()">&larr; Back</span>
+    <div class="panel">
+      <h2>Check it over</h2>
+      <p class="sub">Edit anything before it goes in the box.</p>
+      <div class="field"><label>Title</label><input type="text" value="${escapeHtml(r.title || '')}" onchange="state.extraction.title=this.value"></div>
+      <div class="row" style="gap:12px; margin-bottom:16px;">
+        <div class="field" style="flex:1; margin-bottom:0"><label>Prep time</label><input type="text" value="${escapeHtml(r.prep_time || '')}" onchange="state.extraction.prep_time=this.value"></div>
+        <div class="field" style="flex:1; margin-bottom:0"><label>Cook time</label><input type="text" value="${escapeHtml(r.cook_time || '')}" onchange="state.extraction.cook_time=this.value"></div>
+        <div class="field" style="flex:1; margin-bottom:0"><label>Servings</label><input type="text" value="${escapeHtml(r.servings || '')}" onchange="state.extraction.servings=this.value"></div>
+      </div>
+      <div class="field"><label>Ingredients</label><div id="ing-list">${(r.ingredients || []).map(ingredientRowHtml).join('')}</div><button class="add-line" onclick="addIngredient()">+ add ingredient</button></div>
+      <div class="field"><label>Method</label><div id="step-list">${(r.steps || []).map(stepRowHtml).join('')}</div><button class="add-line" onclick="addStep()">+ add step</button></div>
+      <div class="field"><label>Tags (comma separated)</label><input type="text" value="${escapeHtml((r.tags || []).join(', '))}" onchange="state.extraction.tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)"></div>
+      <div class="field"><label>Notes</label><textarea class="big" style="min-height:70px" onchange="state.extraction.notes=this.value">${escapeHtml(r.notes || '')}</textarea></div>
+      <button class="btn-primary" onclick="handleSave()">Save to the box</button>
+    </div>
+  `;
+}
+
+function renderDetail() {
+  const key = state.editing;
+  const r = state.recipes[key];
+  if (!r) { goList(); return; }
+  app.innerHTML = `
+    <span class="back-link" onclick="goList()">&larr; Back to the box</span>
+    <div class="detail-card">
+      <h2>${escapeHtml(r.title || 'Untitled recipe')}</h2>
+      <div class="detail-meta">${[r.prep_time && 'Prep ' + r.prep_time, r.cook_time && 'Cook ' + r.cook_time, r.servings && r.servings + ' servings'].filter(Boolean).join(' &middot; ')}</div>
+      ${r.source_url ? `<div class="detail-source">From <a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">${escapeHtml(hostOf(r.source_url))}</a></div>` : '<div style="height:12px"></div>'}
+      <div class="cols">
+        <div>
+          <h4>Ingredients</h4>
+          <ul class="ingredients">
+            ${(r.ingredients || []).map(ing => `<li><label><input type="checkbox" onchange="this.closest('li').classList.toggle('done', this.checked)"> ${escapeHtml([ing.amount, ing.unit, ing.name].filter(Boolean).join(' '))}</label></li>`).join('')}
+          </ul>
+        </div>
+        <div>
+          <h4>Method</h4>
+          <ol class="steps">${(r.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+          ${r.notes ? `<div class="notes-box">${escapeHtml(r.notes)}</div>` : ''}
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-text" onclick="editExisting('${key}')">Edit</button>
+        <button class="btn-danger" onclick="handleDelete('${key}')">Remove from box</button>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- actions ----------
+function onSearch(v) { state.search = v; render(); }
+function goList() { state.view = 'list'; render(); }
+function goAdd() { state.view = 'add'; state.addTab = 'paste'; state.addStatus = ''; state.addErr = false; render(); }
+function setAddTab(t) { state.addTab = t; state.addStatus = ''; state.addErr = false; render(); }
+function openRecipe(key) { state.editing = key; state.view = 'detail'; render(); }
+
+function promptName() {
+  const name = prompt('What should we call you on recipes you add?', state.userName || '');
+  if (name && name.trim()) { state.userName = name.trim(); localStorage.setItem('kl_username', state.userName); render(); }
+}
+
+function handlePasteRecipe() {
+  const raw = document.getElementById('paste-input').value.trim();
+  state.pendingPaste = raw;
+  if (!raw) { state.addStatus = 'Paste some JSON first.'; state.addErr = true; render(); return; }
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch (e) { state.addStatus = "That doesn't look like valid JSON \u2014 check nothing got cut off when you copied it."; state.addErr = true; render(); return; }
+  if (parsed && (parsed.title || parsed.ingredients || parsed.steps)) {
+    state.extraction = Object.assign(blankRecipe(), parsed);
+    state.editingKey = null; state.view = 'preview'; render();
+  } else { state.addStatus = "Couldn't find a recipe in that JSON."; state.addErr = true; render(); }
+}
+
+function handleManualStart() { state.extraction = blankRecipe(); state.editingKey = null; state.view = 'preview'; render(); }
+
+function updateIngredient(i, field, val) { state.extraction.ingredients[i][field] = val; }
+function removeIngredient(i) { state.extraction.ingredients.splice(i, 1); render(); }
+function addIngredient() { state.extraction.ingredients = state.extraction.ingredients || []; state.extraction.ingredients.push({amount:'',unit:'',name:''}); render(); }
+function updateStep(i, val) { state.extraction.steps[i] = val; }
+function removeStep(i) { state.extraction.steps.splice(i, 1); render(); }
+function addStep() { state.extraction.steps = state.extraction.steps || []; state.extraction.steps.push(''); render(); }
+
+async function handleSave() {
+  const r = state.extraction;
+  if (!r.title) { alert('Give the recipe a title before saving.'); return; }
+  r.added_by = state.userName || r.added_by || null;
+  r.added_at = r.added_at || Date.now();
+  const key = state.editingKey || nextKey();
+  state.recipes[key] = r;
+  state.editing = key; state.extraction = null; state.editingKey = null; state.view = 'detail';
+  render();
+  ghSaveRecipes();
+}
+
+function editExisting(key) {
+  state.extraction = JSON.parse(JSON.stringify(state.recipes[key]));
+  state.editingKey = key; state.view = 'preview'; render();
+}
+
+async function handleDelete(key) {
+  if (!confirm('Remove this recipe from the box? This can\'t be undone.')) return;
+  delete state.recipes[key];
+  goList();
+  ghSaveRecipes();
+}
+
+// ---------- init ----------
+async function init() {
+  render();
+  if (!ghToken() || !ghGistId()) { state.view = 'connect'; render(); return; }
+  try {
+    state.recipes = await ghLoadRecipes();
+    state.syncStatus = 'Up to date'; state.syncErr = false;
+    state.view = 'list';
+  } catch (e) {
+    state.connectStatus = e.message; state.connectErr = true;
+    state.view = 'connect';
+  }
+  render();
+}
+init();
+</script>
+</body>
+</html>
