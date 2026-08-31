@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kieran & Liv's Recipes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2A2620; --paper: #F4EDD6; --bg: #2E3B27;
+    --rule-blue: #6E8AA8; --rule-red: #A33D2E; --mustard: #D6A536; --sage: #8FA37E; --muted: #7A7360;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg);
+    background-image: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.03), transparent 40%),
+                       radial-gradient(circle at 80% 90%, rgba(255,255,255,0.03), transparent 40%);
+    color: var(--paper); font-family: 'Public Sans', sans-serif; min-height: 100vh;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 36px 20px 80px; }
+  header.top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+  h1.brand { font-family: 'Fraunces', serif; font-weight: 600; font-size: 34px; margin: 0; color: var(--paper); letter-spacing: 0.2px; }
+  h1.brand em { font-style: italic; color: var(--mustard); font-weight: 500; }
+  .name-chip { font-size: 13px; color: var(--sage); background: rgba(255,255,255,0.06); padding: 6px 12px; border-radius: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+  .name-chip:hover { border-color: var(--mustard); color: var(--mustard); }
+  .util-row { display: flex; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+  .util-row button { background: none; color: var(--sage); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; padding: 2px 0; }
+  .util-row button:hover { color: var(--mustard); }
+  .sync-badge { font-size: 12px; color: var(--sage); }
+  .sync-badge.err { color: #E38068; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
+  input[type=text], input[type=password], textarea {
+    font-family: 'Public Sans', sans-serif; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+    color: var(--paper); padding: 11px 14px; border-radius: 6px; font-size: 15px;
+  }
+  input::placeholder, textarea::placeholder { color: rgba(244,237,214,0.4); }
+  input:focus, textarea:focus { outline: 2px solid var(--mustard); outline-offset: 1px; }
+  .search-input { flex: 1; min-width: 180px; }
+  button { font-family: 'Public Sans', sans-serif; cursor: pointer; border: none; }
+  .btn-primary { background: var(--mustard); color: #232D1D; font-weight: 700; font-size: 15px; padding: 11px 20px; border-radius: 6px; transition: background 0.15s; }
+  .btn-primary:hover { background: #E5B84C; }
+  .btn-primary:disabled { opacity: 0.5; cursor: default; }
+  .btn-ghost { background: transparent; color: var(--paper); border: 1px solid rgba(255,255,255,0.25) !important; padding: 10px 18px; border-radius: 6px; font-size: 14px; }
+  .btn-ghost:hover { border-color: var(--paper) !important; }
+  .btn-text { background: none; color: var(--sage); font-size: 14px; padding: 6px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .btn-text:hover { color: var(--mustard); }
+  .btn-danger { background: none; color: #C97060; font-size: 14px; padding: 6px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--paper); color: var(--ink); border-radius: 3px; padding: 20px 18px 18px 30px; position: relative; cursor: pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.12), 0 10px 18px rgba(0,0,0,0.18); border-left: 3px solid var(--rule-red);
+    background-image: repeating-linear-gradient(to bottom, transparent, transparent 27px, rgba(110,138,168,0.35) 27px, rgba(110,138,168,0.35) 28px);
+    background-position: 0 54px; min-height: 150px; transition: transform 0.12s ease;
+  }
+  .card:hover { transform: translateY(-3px); }
+  .card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; margin: 0 0 6px; line-height: 1.25; }
+  .card .meta { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+  .card .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .tag { font-size: 11.5px; background: var(--sage); color: #1E2818; padding: 2px 9px; border-radius: 10px; }
+  .card .by { position: absolute; bottom: 12px; right: 14px; font-size: 11px; color: var(--muted); font-style: italic; }
+  .empty { text-align: center; padding: 60px 20px; color: var(--sage); }
+  .empty h2 { font-family: 'Fraunces', serif; font-weight: 500; font-style: italic; color: var(--paper); font-size: 24px; margin-bottom: 8px; }
+  .empty p { max-width: 440px; margin: 0 auto 18px; line-height: 1.5; }
+  .panel { background: var(--paper); color: var(--ink); border-radius: 6px; padding: 28px; box-shadow: 0 10px 24px rgba(0,0,0,0.25); }
+  .panel h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 24px; margin: 0 0 4px; }
+  .panel p.sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; line-height: 1.5; }
+  .panel a { color: var(--rule-red); }
+  .tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid rgba(0,0,0,0.12); }
+  .tab-btn { background: none; padding: 9px 4px; margin-right: 20px; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab-btn.active { color: var(--ink); border-bottom-color: var(--rule-red); font-weight: 600; }
+  .panel input[type=text], .panel input[type=password], .panel textarea { background: #fff; border: 1px solid rgba(0,0,0,0.15); color: var(--ink); width: 100%; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
+  textarea.big { min-height: 160px; resize: vertical; font-family: 'Public Sans', monospace; }
+  .status-line { font-size: 13.5px; color: var(--muted); margin: 10px 0; min-height: 18px; }
+  .status-line.err { color: var(--rule-red); }
+  .status-line.ok { color: #4C7A3D; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .ingredient-row, .step-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+  .ingredient-row input { flex: 1; }
+  .ingredient-row input.amt { flex: 0 0 70px; }
+  .ingredient-row input.unit { flex: 0 0 70px; }
+  .step-row textarea { flex: 1; min-height: 44px; }
+  .step-num { font-family: 'Fraunces', serif; font-weight: 600; color: var(--rule-red); padding-top: 10px; width: 20px; }
+  .remove-x { background: none; color: var(--muted); font-size: 18px; padding: 6px; line-height: 1; }
+  .remove-x:hover { color: var(--rule-red); }
+  .add-line { font-size: 13px; color: var(--rule-red); background: none; padding: 4px 0; }
+  .detail-card { background: var(--paper); color: var(--ink); border-radius: 6px; padding: 32px 34px; box-shadow: 0 10px 24px rgba(0,0,0,0.25); }
+  .detail-card h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 30px; margin: 0 0 6px; }
+  .detail-meta { color: var(--muted); font-size: 14px; margin-bottom: 4px; }
+  .detail-source { font-size: 13px; margin-bottom: 22px; }
+  .detail-source a { color: var(--rule-blue); }
+  .cols { display: grid; grid-template-columns: 1fr 1.5fr; gap: 34px; }
+  @media (max-width: 620px) { .cols { grid-template-columns: 1fr; } }
+  .cols h4 { font-family: 'Fraunces', serif; font-size: 16px; margin: 0 0 12px; border-bottom: 1px solid rgba(0,0,0,0.15); padding-bottom: 6px; }
+  ul.ingredients { list-style: none; padding: 0; margin: 0; }
+  ul.ingredients li { padding: 7px 0; border-bottom: 1px dotted rgba(0,0,0,0.15); font-size: 15px; }
+  ul.ingredients li label { display: flex; gap: 10px; align-items: baseline; cursor: pointer; }
+  ul.ingredients li input[type=checkbox] { margin-top: 3px; accent-color: var(--rule-red); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  ul.ingredients li.done label { text-decoration: line-through; color: var(--muted); }
+  ol.steps { padding-left: 20px; margin: 0; }
+  ol.steps li { margin-bottom: 14px; line-height: 1.5; font-size: 15px; }
+  .notes-box { margin-top: 22px; font-size: 14px; color: var(--muted); font-style: italic; }
+  .detail-actions { margin-top: 26px; display: flex; gap: 16px; border-top: 1px solid rgba(0,0,0,0.12); padding-top: 16px; flex-wrap: wrap; }
+  .back-link { color: var(--sage); font-size: 14px; text-decoration: none; display: inline-block; margin-bottom: 16px; cursor: pointer; }
+  .back-link:hover { color: var(--mustard); }
+  .callout { background: rgba(0,0,0,0.05); border-left: 3px solid var(--rule-red); padding: 12px 16px; border-radius: 4px; font-size: 13.5px; margin-bottom: 18px; line-height: 1.5; }
+  code { background: rgba(0,0,0,0.08); padding: 1px 6px; border-radius: 3px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+const app = document.getElementById('app');
+let state = { view: 'loading', recipes: {}, search: '', userName: localStorage.getItem('kl_username') || null,
+  editingKey: null, extraction: null, addStatus: '', addErr: false, connectStatus: '', connectErr: false,
+  syncStatus: '', syncErr: false };
+
+function nextKey() { return 'recipe:' + Date.now() + '-' + Math.random().toString(36).slice(2, 8); }
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function hostOf(url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url; } }
+
+// ---------- GitHub Gist storage ----------
+const GIST_FILENAME = 'kieran-liv-recipes.json';
+function ghToken() { return localStorage.getItem('gh_token') || ''; }
+function ghGistId() { return localStorage.getItem('gh_gist_id') || ''; }
+function ghHeaders() { return { 'Authorization': 'token ' + ghToken(), 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }; }
+
+async function ghCreateGist() {
+  const resp = await fetch('https://api.github.com/gists', {
+    method: 'POST', headers: ghHeaders(),
+    body: JSON.stringify({ description: "Kieran & Liv's Recipes data", public: false,
+      files: { [GIST_FILENAME]: { content: JSON.stringify({ recipes: {} }, null, 2) } } })
+  });
+  if (!resp.ok) throw new Error('Could not create the shared file (' + resp.status + '). Check the token has the "gist" scope.');
+  const data = await resp.json();
+  return data.id;
+}
+
+async function ghLoadRecipes() {
+  const resp = await fetch('https://api.github.com/gists/' + ghGistId(), { headers: ghHeaders() });
+  if (resp.status === 404) throw new Error("Couldn't find that shared file \u2014 check the Gist ID.");
+  if (resp.status === 401 || resp.status === 403) throw new Error('That token was refused \u2014 check it still has the "gist" scope and hasn\'t expired.');
+  if (!resp.ok) throw new Error('GitHub returned an error (' + resp.status + ').');
+  const data = await resp.json();
+  const file = data.files && data.files[GIST_FILENAME];
+  if (!file) throw new Error('That Gist doesn\'t have the expected file in it.');
+  const parsed = JSON.parse(file.content || '{"recipes":{}}');
+  return parsed.recipes || {};
+}
+
+async function ghSaveRecipes() {
+  state.syncStatus = 'Saving\u2026'; state.syncErr = false; paintSyncBadge();
+  try {
+    const resp = await fetch('https://api.github.com/gists/' + ghGistId(), {
+      method: 'PATCH', headers: ghHeaders(),
+      body: JSON.stringify({ files: { [GIST_FILENAME]: { content: JSON.stringify({ recipes: state.recipes }, null, 2) } } })
+    });
+    if (!resp.ok) throw new Error('Save failed (' + resp.status + ')');
+    state.syncStatus = 'Saved just now'; state.syncErr = false;
+  } catch (e) {
+    state.syncStatus = "Couldn't save: " + e.message; state.syncErr = true;
+  }
+  paintSyncBadge();
+}
+function paintSyncBadge() {
+  const el = document.getElementById('sync-badge');
+  if (el) { el.textContent = state.syncStatus; el.className = 'sync-badge' + (state.syncErr ? ' err' : ''); }
+}
+
+function disconnectGithub() {
+  if (!confirm("Disconnect from GitHub? You'll need the token and Gist ID again to reconnect.")) return;
+  localStorage.removeItem('gh_token'); localStorage.removeItem('gh_gist_id');
+  state.view = 'connect'; render();
+}
+
+// ---------- render ----------
+function render() {
+  if (state.view === 'loading') return renderLoading();
+  if (state.view === 'connect') return renderConnect();
+  if (state.view === 'list') return renderList();
+  if (state.view === 'add') return renderAdd();
+  if (state.view === 'preview') return renderPreview();
+  if (state.view === 'detail') return renderDetail();
+}
+
+function renderLoading() {
+  app.innerHTML = `<div class="empty"><h2>Opening the box\u2026</h2></div>`;
+}
+
+function renderConnect() {
+  app.innerHTML = `
+    <div class="panel">
+      <h2>Connect the shared box</h2>
+      <p class="sub">Recipes are stored in a private GitHub Gist so you and your partner both see the same box.</p>
+      <div class="callout">
+        1. <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kieran%20and%20Liv%20Recipes" target="_blank" rel="noopener">Create a token</a> scoped only to <code>gist</code> (no other access needed), and copy it.<br>
+        2. Paste it below. Leave Gist ID blank the very first time \u2014 the app will create the shared file and show you the ID to give your partner.
+      </div>
+      <div class="field">
+        <label for="gh-token-input">GitHub token</label>
+        <input type="password" id="gh-token-input" placeholder="ghp_...">
+      </div>
+      <div class="field">
+        <label for="gh-gist-input">Gist ID (leave blank to create a new shared box)</label>
+        <input type="text" id="gh-gist-input" placeholder="e.g. 8f1a2b3c...">
+      </div>
+      <button class="btn-primary" id="connect-btn" onclick="handleConnect()">Connect</button>
+      <div class="status-line ${state.connectErr ? 'err' : 'ok'}">${state.connectStatus || ''}</div>
+    </div>
+  `;
+}
+
+async function handleConnect() {
+  const token = document.getElementById('gh-token-input').value.trim();
+  const gistIdInput = document.getElementById('gh-gist-input').value.trim();
+  if (!token) { state.connectStatus = 'Paste your token first.'; state.connectErr = true; render(); return; }
+  const btn = document.getElementById('connect-btn'); if (btn) btn.disabled = true;
+  localStorage.setItem('gh_token', token);
+  state.connectStatus = gistIdInput ? 'Connecting\u2026' : 'Creating your shared box\u2026';
+  state.connectErr = false; render();
+  try {
+    let gistId = gistIdInput;
+    if (!gistId) gistId = await ghCreateGist();
+    localStorage.setItem('gh_gist_id', gistId);
+    state.recipes = await ghLoadRecipes();
+    state.view = 'list';
+    render();
+    if (!gistIdInput) {
+      alert('Shared box created. Give your partner this Gist ID so they can connect too:\n\n' + gistId + '\n\n(They\'ll also need a token of their own, or this same one \u2014 either works, since it\'s the token that grants write access.)');
+    }
+  } catch (e) {
+    state.connectStatus = e.message; state.connectErr = true;
+    if (btn) btn.disabled = false;
+    render();
+  }
+}
+
+function header() {
+  return `
+    <header class="top">
+      <h1 class="brand">Kieran & Liv's <em>Recipes</em></h1>
+      <div class="name-chip" onclick="promptName()">${state.userName ? 'Signed as ' + escapeHtml(state.userName) : 'Set your name'}</div>
+    </header>
+    <div class="util-row">
+      <span class="sync-badge ${state.syncErr ? 'err' : ''}" id="sync-badge">${state.syncStatus}</span>
+      <button onclick="manualRefresh()">Refresh</button>
+      <button onclick="disconnectGithub()">Change GitHub connection</button>
+    </div>`;
+}
+
+async function manualRefresh() {
+  state.syncStatus = 'Checking for updates\u2026'; state.syncErr = false; render();
+  try { state.recipes = await ghLoadRecipes(); state.syncStatus = 'Up to date'; state.syncErr = false; }
+  catch (e) { state.syncStatus = "Couldn't refresh: " + e.message; state.syncErr = true; }
+  render();
+}
+
+function renderList() {
+  const q = state.search.trim().toLowerCase();
+  const entries = Object.entries(state.recipes).filter(([k, r]) => {
+    if (!q) return true;
+    const hay = (r.title + ' ' + (r.tags || []).join(' ')).toLowerCase();
+    return hay.includes(q);
+  }).sort((a, b) => (b[1].added_at || 0) - (a[1].added_at || 0));
+
+  let cards = entries.map(([key, r]) => `
+    <div class="card" onclick="openRecipe('${key}')">
+      <h3>${escapeHtml(r.title || 'Untitled recipe')}</h3>
+      <div class="meta">${[r.prep_time, r.cook_time, r.servings ? r.servings + ' servings' : ''].filter(Boolean).join(' &middot; ')}</div>
+      <div class="tags">${(r.tags || []).slice(0, 3).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+      ${r.added_by ? `<div class="by">added by ${escapeHtml(r.added_by)}</div>` : ''}
+    </div>`).join('');
+
+  if (entries.length === 0) {
+    cards = `<div class="empty" style="grid-column:1/-1">
+      <h2>${q ? 'Nothing matches that search' : 'The box is empty'}</h2>
+      <p>${q ? 'Try a different word, or clear the search.' : 'Paste in a recipe to get started \u2014 it\'ll show up for both of you.'}</p>
+    </div>`;
+  }
+
+  app.innerHTML = `
+    ${header()}
+    <div class="toolbar">
+      <input class="search-input" type="text" placeholder="Search your recipes" value="${escapeHtml(state.search)}" oninput="onSearch(this.value)">
+      <button class="btn-primary" onclick="goAdd()">Add a recipe</button>
+    </div>
+    <div class="grid">${cards}</div>
+  `;
+}
+
+function blankRecipe() { return { title: '', servings: '', prep_time: '', cook_time: '', ingredients: [], steps: [], notes: '', tags: [] }; }
+
+function renderAdd() {
+  const tab = state.addTab || 'paste';
+  app.innerHTML = `
+    <span class="back-link" onclick="goList()">&larr; Back to the box</span>
+    <div class="panel">
+      <h2>Add a recipe</h2>
+      <p class="sub">Send a recipe link to Claude in chat and it'll hand you back clean JSON &mdash; paste that here. Or fill one in yourself.</p>
+      <div class="tabs">
+        <button class="tab-btn ${tab === 'paste' ? 'active' : ''}" onclick="setAddTab('paste')">Paste from Claude</button>
+        <button class="tab-btn ${tab === 'manual' ? 'active' : ''}" onclick="setAddTab('manual')">Enter manually</button>
+      </div>
+      ${tab === 'paste' ? `
+        <div class="field">
+          <label for="paste-input">Recipe JSON</label>
+          <textarea id="paste-input" class="big" placeholder='{"title": "...", "ingredients": [...], "steps": [...]}'>${escapeHtml(state.pendingPaste || '')}</textarea>
+        </div>
+        <button class="btn-primary" onclick="handlePasteRecipe()">Continue</button>
+      ` : `
+        <p class="sub" style="margin-top:-8px">You'll fill in the title, ingredients and steps on the next screen.</p>
+        <button class="btn-primary" onclick="handleManualStart()">Start a blank recipe</button>
+      `}
+      <div class="status-line ${state.addErr ? 'err' : ''}">${state.addStatus || ''}</div>
+    </div>
+  `;
+}
+
+function ingredientRowHtml(ing, i) {
+  return `
+    <div class="ingredient-row">
+      <input class="amt" type="text" placeholder="amt" value="${escapeHtml(ing.amount || '')}" onchange="updateIngredient(${i},'amount',this.value)">
+      <input class="unit" type="text" placeholder="unit" value="${escapeHtml(ing.unit || '')}" onchange="updateIngredient(${i},'unit',this.value)">
+      <input type="text" placeholder="ingredient" value="${escapeHtml(ing.name || '')}" onchange="updateIngredient(${i},'name',this.value)">
+      <button class="remove-x" onclick="removeIngredient(${i})">&times;</button>
+    </div>`;
+}
+function stepRowHtml(step, i) {
+  return `
+    <div class="step-row">
+      <div class="step-num">${i + 1}.</div>
+      <textarea onchange="updateStep(${i},this.value)">${escapeHtml(step)}</textarea>
+      <button class="remove-x" onclick="removeStep(${i})">&times;</button>
+    </div>`;
+}
+
+function renderPreview() {
+  const r = state.extraction;
+  app.innerHTML = `
+    <span class="back-link" onclick="goAdd()">&larr; Back</span>
+    <div class="panel">
+      <h2>Check it over</h2>
+      <p class="sub">Edit anything before it goes in the box.</p>
+      <div class="field"><label>Title</label><input type="text" value="${escapeHtml(r.title || '')}" onchange="state.extraction.title=this.value"></div>
+      <div class="row" style="gap:12px; margin-bottom:16px;">
+        <div class="field" style="flex:1; margin-bottom:0"><label>Prep time</label><input type="text" value="${escapeHtml(r.prep_time || '')}" onchange="state.extraction.prep_time=this.value"></div>
+        <div class="field" style="flex:1; margin-bottom:0"><label>Cook time</label><input type="text" value="${escapeHtml(r.cook_time || '')}" onchange="state.extraction.cook_time=this.value"></div>
+        <div class="field" style="flex:1; margin-bottom:0"><label>Servings</label><input type="text" value="${escapeHtml(r.servings || '')}" onchange="state.extraction.servings=this.value"></div>
+      </div>
+      <div class="field"><label>Ingredients</label><div id="ing-list">${(r.ingredients || []).map(ingredientRowHtml).join('')}</div><button class="add-line" onclick="addIngredient()">+ add ingredient</button></div>
+      <div class="field"><label>Method</label><div id="step-list">${(r.steps || []).map(stepRowHtml).join('')}</div><button class="add-line" onclick="addStep()">+ add step</button></div>
+      <div class="field"><label>Tags (comma separated)</label><input type="text" value="${escapeHtml((r.tags || []).join(', '))}" onchange="state.extraction.tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)"></div>
+      <div class="field"><label>Notes</label><textarea class="big" style="min-height:70px" onchange="state.extraction.notes=this.value">${escapeHtml(r.notes || '')}</textarea></div>
+      <button class="btn-primary" onclick="handleSave()">Save to the box</button>
+    </div>
+  `;
+}
+
+function renderDetail() {
+  const key = state.editing;
+  const r = state.recipes[key];
+  if (!r) { goList(); return; }
+  app.innerHTML = `
+    <span class="back-link" onclick="goList()">&larr; Back to the box</span>
+    <div class="detail-card">
+      <h2>${escapeHtml(r.title || 'Untitled recipe')}</h2>
+      <div class="detail-meta">${[r.prep_time && 'Prep ' + r.prep_time, r.cook_time && 'Cook ' + r.cook_time, r.servings && r.servings + ' servings'].filter(Boolean).join(' &middot; ')}</div>
+      ${r.source_url ? `<div class="detail-source">From <a href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">${escapeHtml(hostOf(r.source_url))}</a></div>` : '<div style="height:12px"></div>'}
+      <div class="cols">
+        <div>
+          <h4>Ingredients</h4>
+          <ul class="ingredients">
+            ${(r.ingredients || []).map(ing => `<li><label><input type="checkbox" onchange="this.closest('li').classList.toggle('done', this.checked)"> ${escapeHtml([ing.amount, ing.unit, ing.name].filter(Boolean).join(' '))}</label></li>`).join('')}
+          </ul>
+        </div>
+        <div>
+          <h4>Method</h4>
+          <ol class="steps">${(r.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+          ${r.notes ? `<div class="notes-box">${escapeHtml(r.notes)}</div>` : ''}
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-text" onclick="editExisting('${key}')">Edit</button>
+        <button class="btn-danger" onclick="handleDelete('${key}')">Remove from box</button>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- actions ----------
+function onSearch(v) { state.search = v; render(); }
+function goList() { state.view = 'list'; render(); }
+function goAdd() { state.view = 'add'; state.addTab = 'paste'; state.addStatus = ''; state.addErr = false; render(); }
+function setAddTab(t) { state.addTab = t; state.addStatus = ''; state.addErr = false; render(); }
+function openRecipe(key) { state.editing = key; state.view = 'detail'; render(); }
+
+function promptName() {
+  const name = prompt('What should we call you on recipes you add?', state.userName || '');
+  if (name && name.trim()) { state.userName = name.trim(); localStorage.setItem('kl_username', state.userName); render(); }
+}
+
+function handlePasteRecipe() {
+  const raw = document.getElementById('paste-input').value.trim();
+  state.pendingPaste = raw;
+  if (!raw) { state.addStatus = 'Paste some JSON first.'; state.addErr = true; render(); return; }
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch (e) { state.addStatus = "That doesn't look like valid JSON \u2014 check nothing got cut off when you copied it."; state.addErr = true; render(); return; }
+  if (parsed && (parsed.title || parsed.ingredients || parsed.steps)) {
+    state.extraction = Object.assign(blankRecipe(), parsed);
+    state.editingKey = null; state.view = 'preview'; render();
+  } else { state.addStatus = "Couldn't find a recipe in that JSON."; state.addErr = true; render(); }
+}
+
+function handleManualStart() { state.extraction = blankRecipe(); state.editingKey = null; state.view = 'preview'; render(); }
+
+function updateIngredient(i, field, val) { state.extraction.ingredients[i][field] = val; }
+function removeIngredient(i) { state.extraction.ingredients.splice(i, 1); render(); }
+function addIngredient() { state.extraction.ingredients = state.extraction.ingredients || []; state.extraction.ingredients.push({amount:'',unit:'',name:''}); render(); }
+function updateStep(i, val) { state.extraction.steps[i] = val; }
+function removeStep(i) { state.extraction.steps.splice(i, 1); render(); }
+function addStep() { state.extraction.steps = state.extraction.steps || []; state.extraction.steps.push(''); render(); }
+
+async function handleSave() {
+  const r = state.extraction;
+  if (!r.title) { alert('Give the recipe a title before saving.'); return; }
+  r.added_by = state.userName || r.added_by || null;
+  r.added_at = r.added_at || Date.now();
+  const key = state.editingKey || nextKey();
+  state.recipes[key] = r;
+  state.editing = key; state.extraction = null; state.editingKey = null; state.view = 'detail';
+  render();
+  ghSaveRecipes();
+}
+
+function editExisting(key) {
+  state.extraction = JSON.parse(JSON.stringify(state.recipes[key]));
+  state.editingKey = key; state.view = 'preview'; render();
+}
+
+async function handleDelete(key) {
+  if (!confirm('Remove this recipe from the box? This can\'t be undone.')) return;
+  delete state.recipes[key];
+  goList();
+  ghSaveRecipes();
+}
+
+// ---------- init ----------
+async function init() {
+  render();
+  if (!ghToken() || !ghGistId()) { state.view = 'connect'; render(); return; }
+  try {
+    state.recipes = await ghLoadRecipes();
+    state.syncStatus = 'Up to date'; state.syncErr = false;
+    state.view = 'list';
+  } catch (e) {
+    state.connectStatus = e.message; state.connectErr = true;
+    state.view = 'connect';
+  }
+  render();
+}
+init();
+</script>
+</body>
+</html>
